@@ -94,6 +94,21 @@ func (self *IBBSTree) Get(key uint64) (value interface{}) {
 	}
 }
 
+func (self *IBBSTree) GetIndex(index uint64) (value interface{}) {
+	if self == nil || self.Size() <= index {
+		panic("Index out of bounds")
+	}
+	if self.height == 0 {
+		return self.value
+	} else {
+		if index < self.left.size {
+			return self.left.GetIndex(index)
+		} else {
+			return self.right.GetIndex(index - self.left.size)
+		}
+	}
+}
+
 func (self *IBBSTree) Set(key uint64, value interface{}) (_ *IBBSTree, updated bool) {
 	if self == nil {
 		return NewIBBSTreeNode(key, value), false
