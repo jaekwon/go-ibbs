@@ -18,26 +18,12 @@ func (self *IBBSTree) lmd() *IBBSTree {
 }
 
 // Convenience for a new node
-func N(l, r interface{}) *IBBSTree {
-	var left, right *IBBSTree
-	if _, ok := l.(*IBBSTree); ok {
-		left = l.(*IBBSTree)
-	} else {
-		left = NewIBBSTreeNode(uint64(l.(int)), l.(int))
+func N(keys ...uint64) *IBBSTree {
+	var root *IBBSTree
+	for _, key := range keys {
+		root, _ = root.Set(key, nil)
 	}
-	if _, ok := r.(*IBBSTree); ok {
-		right = r.(*IBBSTree)
-	} else {
-		right = NewIBBSTreeNode(uint64(r.(int)), r.(int))
-	}
-
-	n := &IBBSTree{
-		key:   right.lmd().key,
-		left:  left,
-		right: right,
-	}
-	n.calcHeightAndSize()
-	return n
+	return root
 }
 
 // Convenience for simple printing of keys & tree structure
@@ -87,21 +73,21 @@ func TestUnit(t *testing.T) {
 	expectGetIndex(n1, 0, 4)
 	expectGetIndex(n1, 1, 20)
 
-	n2 := N(4, N(20, 25))
+	n2 := N(4, 20, 25)
 	expectSet(n2, 8, "((4 8) (20 25))")
 	expectSet(n2, 30, "((4 20) (25 30))")
 	expectGetIndex(n2, 0, 4)
 	expectGetIndex(n2, 1, 20)
 	expectGetIndex(n2, 2, 25)
 
-	n3 := N(N(1, 2), 6)
+	n3 := N(1, 2, 6)
 	expectSet(n3, 4, "((1 2) (4 6))")
 	expectSet(n3, 8, "((1 2) (6 8))")
 	expectGetIndex(n3, 0, 1)
 	expectGetIndex(n3, 1, 2)
 	expectGetIndex(n3, 2, 6)
 
-	n4 := N(N(1, 2), N(N(5, 6), N(7, 9)))
+	n4 := N(1, 2, 5, 6, 7, 9)
 	expectSet(n4, 8, "(((1 2) (5 6)) ((7 8) 9))")
 	expectSet(n4, 10, "(((1 2) (5 6)) (7 (9 10)))")
 	expectGetIndex(n4, 0, 1)
@@ -113,11 +99,11 @@ func TestUnit(t *testing.T) {
 
 	//////// Test Remove:
 
-	n10 := N(N(1, 2), 3)
+	n10 := N(1, 2, 3)
 	expectRemove(n10, 2, "(1 3)")
 	expectRemove(n10, 3, "(1 2)")
 
-	n11 := N(N(N(1, 2), 3), N(4, 5))
+	n11 := N(1, 2, 3, 4, 5)
 	expectRemove(n11, 4, "((1 2) (3 5))")
 	expectRemove(n11, 3, "((1 2) (4 5))")
 
